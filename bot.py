@@ -22,9 +22,7 @@ from discord.ext import commands
 import config
 from tokens import tokens as TOKENS
 
-startup_extensions = ['extensions.emotes',
-                      'extensions.errors',
-                      'extensions.onboarding',
+startup_extensions = ['extensions.errors',
                       'extensions.twitch']
 
 

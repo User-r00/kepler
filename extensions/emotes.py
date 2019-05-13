@@ -324,6 +324,7 @@ class Emotes(commands.Cog):
 
 
 def setup(bot):
+    """Add cog to bot."""
     bot.add_cog(Emotes(bot))
 
 # .r00
