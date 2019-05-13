@@ -23,6 +23,16 @@ class Emotes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        # Create emote list database.
+        conn = sqlite3.connect('databases/emotes.db')
+        c = conn.cursor()
+        try:
+            c.execute('''CREATE TABLE emote_list (name text PRIMARY KEY,
+                                                  enabled integer)''')
+        except sqlite3.OperationalError as e:
+            print(f'[WARN] {e}.')
+
+        # Create emote database.
         conn = sqlite3.connect('databases/emotes.db')
         c = conn.cursor()
         try:
