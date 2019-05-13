@@ -45,7 +45,7 @@ class Utilities(commands.Cog):
         data = c.execute('SELECT * FROM roles')
 
         if config.role_cache_updated:
-            msg = '[All available Kepler Roles]\n\n'
+            msg = '[All available self-joinable Kepler Roles]\n\n'
 
             for i in data:
                 msg = msg + f'{i[0]}\n'
@@ -60,22 +60,22 @@ class Utilities(commands.Cog):
         await ctx.send(role_list)
 
     @commands.has_any_role('Member')
-    @commands.command(name='role')
-    async def role_command(self, ctx, *, name: str):
+    @commands.command(name='subscribe')
+    async def toggle_roll_command(self, ctx, *, role_name: str):
         """Add or remove requested role for a user."""
-        print(name)
-        # role = discord.utils.get(ctx.guild.roles, name=name)
-        # role = get(member.guild.roles, name=name)
+        role = discord.utils.get(ctx.guild.roles, name=role_name)
 
-        role = await RoleConverter().convert(ctx, name)
         if role is not None:
             roles = ctx.author.roles
             if role in roles:
                 await ctx.author.remove_roles(role)
+                await ctx.send(f'You have left {role_name}.')
             else:
                 await ctx.author.add_roles(role)
+                await ctx.send(f'You have joined {role_name}.')
         else:
-            print('Failed to get role.')
+            ctx.send('The role {role_name} doesn\'t seem to exist. Use '
+                     '.roleslist to confirm.')
 
     @commands.has_any_role('Moderator')
     @commands.command(name='createrole', aliases=['newrole'])
@@ -109,7 +109,7 @@ class Utilities(commands.Cog):
             await ctx.send('Created role {}.'.format(role))
 
     @commands.has_any_role('Moderator')
-    @commands.command(name='delete_role', aliases=['delrole', 'removerole'])
+    @commands.command(name='deleterole', aliases=['delrole', 'removerole'])
     async def deleterole_command(self, ctx, *, role):
         """Delete self-joinable role."""
         conn = sqlite3.connect('databases/roles.db')
