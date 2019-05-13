@@ -1,7 +1,7 @@
 #!usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Emote commands for Brave Traveler."""
+"""Emote commands for Kepler."""
 
 import os
 import json

@@ -21,7 +21,6 @@ import discord
 from discord.ext import commands
 import config
 from tokens import tokens as TOKENS
-# from paste_it import Paste_it
 
 startup_extensions = ['extensions.emotes',
                       'extensions.errors',

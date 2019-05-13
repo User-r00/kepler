@@ -12,7 +12,6 @@ from pprint import pprint
 import discord
 from discord.ext import tasks, commands
 import semaphores
-from tokens import tokens as TOKENS
 
 
 class Twitch(commands.Cog):
