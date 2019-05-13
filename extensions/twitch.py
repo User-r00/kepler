@@ -82,7 +82,6 @@ class Twitch(commands.Cog):
         announce_channel = self.bot.get_channel(574845713016553490)
 
         USER = '195457791'  # r00
-        USER = '191552265'  # Hex
         CLIENT_ID = TOKENS.TWITCH_CLIENT
         HEADERS = {'client-id': TOKENS.TWITCH_CLIENT,
                    'Accept': 'application/vnd.twitchtv.v5+json'}
