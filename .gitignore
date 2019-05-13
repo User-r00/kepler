@@ -1,6 +1,9 @@
 # Command images
 command_images/*
 
+# Databases
+databases/*
+
 # Tokens
 tokens/*
 

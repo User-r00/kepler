@@ -7,7 +7,6 @@ import json
 import aiohttp
 import asyncio
 import logging
-from pprint import pprint
 
 import discord
 from discord.ext import tasks, commands

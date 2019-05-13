@@ -22,7 +22,8 @@ from discord.ext import commands
 import config
 from tokens import tokens as TOKENS
 
-startup_extensions = ['extensions.errors',
+startup_extensions = [
+                      'extensions.roles',
                       'extensions.twitch']
 
 
