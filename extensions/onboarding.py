@@ -45,8 +45,10 @@ class Onboarding(commands.Cog):
                 member = ctx.author.display_name
                 greetings = [f'**Beep b00p. It\'s {member}**',
                              f'**Oh now that\'s nice. It\'s {member}.**',
-                             f'**Unfortunately, we\'re all human. Except {member}, of course.**',
-                             f'**Never trust a {member} with a rat tail. Too easy to carve secrets out of them.**',
+                             f'**Unfortunately, we\'re all human. Except '
+                             f'{member}, of course.**',
+                             f'**Never trust a {member} with a rat tail. Too '
+                             f'easy to carve secrets out of them.**',
                              f'**ಠ_ಠ {member}.**',
                              f'**Well it\'s not {member}.**',
                              f'**A wild {member} appears.**',
@@ -59,7 +61,7 @@ class Onboarding(commands.Cog):
             await ctx.channel.send('You have already joined r00m 8.',
                                    delete_after=7.0)
 
-            self.bot.logger.error(f'{ctx.author} tried to join r00m 8 ' \
+            self.bot.logger.error(f'{ctx.author} tried to join r00m 8 '
                                    'but they are already a member.')
 
     @commands.command()
@@ -70,10 +72,11 @@ class Onboarding(commands.Cog):
             await ctx.send_help(ctx.command)
         else:
             try:
-                await ctx.send('Bonsoir {0.mention}.'.format(self._last_member))
+                await ctx.send('Hello {0.mention}.'.format(self._last_member))
             except AttributeError:
-                self.bot.logger.error(f'{member} does not appear to mentionable. ' \
-                                       'They may have left the server.')
+                self.bot.logger.error(f'{member} does not appear to '
+                                       'mentionable. They may have left the '
+                                       'server.')
 
     @commands.command(hidden=True)
     async def set_last_member(self, ctx, *, member: discord.Member):

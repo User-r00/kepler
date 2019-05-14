@@ -22,7 +22,8 @@ from discord.ext import commands
 import config
 from tokens import tokens as TOKENS
 
-startup_extensions = ['extensions.errors',
+# Extensions to load at runtime.
+startup_extensions = ['extensions.roles',
                       'extensions.twitch']
 
 
@@ -37,10 +38,14 @@ def get_prefix(bot, message):
 
 bot = commands.Bot(command_prefix=get_prefix, description=config.DESCRIPTION)
 
+# Setup logger.
 logger = logging.getLogger('Kepler')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='kepler.log', encoding='utf-8', mode='a')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
+handler = logging.FileHandler(filename='kepler.log',
+                              encoding='utf-8',
+                              mode='a')
+form = '%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+handler.setFormatter(logging.Formatter())
 logger.addHandler(handler)
 bot.logger = logger
 
@@ -52,15 +57,6 @@ async def on_ready():
     if not os.path.isdir('databases'):
             print('[WARN] Databases folder does not exist. Creating it.')
             os.makedirs('databases')
-
-    # Create emote database.
-    conn = sqlite3.connect('databases/emotes.db')
-    c = conn.cursor()
-    try:
-        c.execute('''CREATE TABLE emote_list (name text PRIMARY KEY,
-                                              enabled integer)''')
-    except sqlite3.OperationalError as e:
-        print(f'[WARN] {e}.')
 
     bot.logger.info(f'\nLogged in as: {bot.user.name}\n')
 
