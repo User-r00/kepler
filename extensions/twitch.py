@@ -7,6 +7,7 @@ import json
 import aiohttp
 import asyncio
 import logging
+from pprint import pprint
 
 import discord
 from discord.ext import tasks, commands
@@ -23,14 +24,16 @@ class Twitch(commands.Cog):
         self.check_channel.start()
 
     @tasks.loop(seconds=60.0)
-    # @commands.command(name='live')
-    async def check_channel(self, ctx):
+    async def check_channel(self):
         """Check if a Twitch channel is live."""
 
         announce_channel = self.bot.get_channel(574845713016553490)
+        if announce_channel is not None:
+            self.bot.logger.info('Got announce channel.')
 
         USER = '195457791'  # r00
-        USER = '191552265'  # Hex
+        USER = '152657283'  # its_KC
+        # USER = '191552265'  # Hex
         CLIENT_ID = TOKENS.TWITCH_CLIENT
         HEADERS = {'client-id': TOKENS.TWITCH_CLIENT,
                    'Accept': 'application/vnd.twitchtv.v5+json'}
@@ -55,15 +58,23 @@ class Twitch(commands.Cog):
                     DESC = stream['channel']['status'].split('|')[0]
                     IMAGE = stream['preview']['large']
 
+                    self.bot.logger.info('Packaging embed.')
+
                     embed = discord.Embed(title=TITLE,
                                           description=DESC,
                                           color=0x6441a5,
                                           url=URL)
                     embed.set_image(url=IMAGE)
 
-                    channel = self.bot.get_channel(574845713016553490)
-                    role = ctx.guild.get_role(574845243908947988)
-                    await channel.send(role.mention)
+                    self.bot.logger.info('Sending announcement.')
+
+                    # channel = self.bot.get_channel(574845713016553490)
+                    guild = self.bot.guilds[0]
+                    role = guild.get_role(577531901515137054)
+
+                    await announce_channel.send(role.mention)
+
+                    self.bot.logger.info('Sending embed.')
                     await announce_channel.send(embed=embed)
                 else:
                     semaphores.is_live = False
