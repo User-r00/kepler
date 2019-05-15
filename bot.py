@@ -23,7 +23,8 @@ import config
 from tokens import tokens as TOKENS
 
 # Extensions to load at runtime.
-startup_extensions = ['extensions.twitch']
+startup_extensions = ['extensions.roles',
+                      'extensions.twitch']
 
 
 def get_prefix(bot, message):
