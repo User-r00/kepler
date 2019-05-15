@@ -16,7 +16,7 @@ from tokens import tokens as TOKENS
 
 
 class Twitch(commands.Cog):
-    """Utility commands."""
+    """Twitch commands for Kepler."""
 
     def __init__(self, bot):
         """Init."""
@@ -26,56 +26,56 @@ class Twitch(commands.Cog):
     @tasks.loop(seconds=60.0)
     async def check_channel(self):
         """Check if a Twitch channel is live."""
-
+        # Channel to send notifications.
         announce_channel = self.bot.get_channel(574845713016553490)
         if announce_channel is not None:
             self.bot.logger.info('Got announce channel.')
 
-        USER = '195457791'  # r00
-        USER = '152657283'  # its_KC
-        # USER = '191552265'  # Hex
+        # Twitch channel ID for one r00 boi.
+        USER = '195457791'
+
+        # Payload to send to the Twitch API call.
         CLIENT_ID = TOKENS.TWITCH_CLIENT
         HEADERS = {'client-id': TOKENS.TWITCH_CLIENT,
                    'Accept': 'application/vnd.twitchtv.v5+json'}
         URL = f'https://api.twitch.tv/kraken/streams/{USER}'
 
-        self.bot.logger.info(f'Checking if {USER} is live.')
-
+        # Context manager for hitting the Twitch API.
         async with aiohttp.ClientSession() as session:
             async with session.get(URL, headers=HEADERS) as resp:
-                self.bot.logger.info(f'Checking with Twitch.')
                 data = await resp.json()
-
                 stream = data['stream']
 
-                if data['stream'] is not None:
-                    # Stream is live.
-                    self.bot.logger.info(f'User is live.')
+                # If stream is live.
+                if stream is not None and semaphores.is_live is False:
+
+                    # Set live semaphore.
                     semaphores.is_live = True
+
+                    # Embed data
                     URL = stream['channel']['url']
                     GAME = stream['game']
-                    TITLE = f'r00 is streaming {GAME}!'
-                    DESC = stream['channel']['status'].split('|')[0]
+                    NAME = stream['channel']['display_name']
+                    TITLE = f'{NAME} is streaming {GAME}!'
+                    DESC = stream['channel']['status']
                     IMAGE = stream['preview']['large']
 
-                    self.bot.logger.info('Packaging embed.')
-
+                    # Package the embed.
                     embed = discord.Embed(title=TITLE,
                                           description=DESC,
                                           color=0x6441a5,
                                           url=URL)
                     embed.set_image(url=IMAGE)
 
-                    self.bot.logger.info('Sending announcement.')
-
-                    # channel = self.bot.get_channel(574845713016553490)
+                    # Get Twitch Announcements role.
                     guild = self.bot.guilds[0]
                     role = guild.get_role(577531901515137054)
 
+                    # Alert users.
                     await announce_channel.send(role.mention)
-
-                    self.bot.logger.info('Sending embed.')
                     await announce_channel.send(embed=embed)
+
+                    self.bot.logger.info(f'{NAME} is live. Notifying the gang.')
                 else:
                     semaphores.is_live = False
                     self.bot.logger.info('User is not live. Checking again '
@@ -83,53 +83,9 @@ class Twitch(commands.Cog):
 
     @check_channel.before_loop
     async def before_check_channel(self):
-        self.bot.logger.info('Waiting for bot to stand up...')
+        """Run before the task above is done. This lets us wait until the bot
+        is fully up to poll Twitch."""
         await self.bot.wait_until_ready()
-
-    @commands.command()
-    async def testping(self, ctx):
-        print('Sending announce.')
-        announce_channel = self.bot.get_channel(574845713016553490)
-
-        USER = '195457791'  # r00
-        CLIENT_ID = TOKENS.TWITCH_CLIENT
-        HEADERS = {'client-id': TOKENS.TWITCH_CLIENT,
-                   'Accept': 'application/vnd.twitchtv.v5+json'}
-        URL = f'https://api.twitch.tv/kraken/streams/{USER}'
-
-        self.bot.logger.info(f'Checking if {USER} is live.')
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(URL, headers=HEADERS) as resp:
-                self.bot.logger.info(f'Checking with Twitch.')
-                data = await resp.json()
-
-                stream = data['stream']
-
-                if data['stream'] is not None:
-                    # Stream is live.
-                    self.bot.logger.info(f'User is live.')
-                    semaphores.is_live = True
-                    URL = stream['channel']['url']
-                    GAME = stream['game']
-                    TITLE = f'r00 is streaming {GAME}!'
-                    DESC = stream['channel']['status'].split('|')[0]
-                    IMAGE = stream['preview']['large']
-
-                    embed = discord.Embed(title=TITLE,
-                                          description=DESC,
-                                          color=0x6441a5,
-                                          url=URL)
-                    embed.set_image(url=IMAGE)
-
-                    channel = self.bot.get_channel(574845713016553490)
-                    role = ctx.guild.get_role(574845243908947988)
-                    await channel.send(role.mention)
-                    await announce_channel.send(embed=embed)
-                else:
-                    semaphores.is_live = False
-                    self.bot.logger.info('User is not live. Checking again '
-                                         'in 60 seconds.')
 
 
 def setup(bot):
