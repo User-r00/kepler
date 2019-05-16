@@ -72,7 +72,7 @@ class Twitch(commands.Cog):
                         role = guild.get_role(577531901515137054)
 
                         # Alert users.
-                        # await announce_channel.send(role.mention)
+                        await announce_channel.send(role.mention)
                         await announce_channel.send(embed=embed)
 
                         self.bot.logger.info(f'{NAME} is live. Notifying the gang.')  
