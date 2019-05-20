@@ -78,7 +78,7 @@ class Utilities(commands.Cog):
                      '.roleslist to confirm.')
 
     @commands.has_any_role('Moderator')
-    @commands.command(name='createrole', aliases=['newrole'])
+    @commands.command(name='createrole', aliases=['newrole', 'addrole'])
     async def createrole_command(self, ctx, role: str, color: discord.Colour,
                                  joinable=False):
         """Create self-joinable role."""
@@ -100,34 +100,44 @@ class Utilities(commands.Cog):
 
             print('Role created.')
 
-            # Stash the role in the database.
-            data = (role, joinable)
-            c.execute('INSERT INTO roles VALUES (?,?)', data)
-            conn.commit()
-            conn.close()
+            if joinable is not False:
+                # Stash the role in the database.
+                data = (role, joinable)
+                c.execute('INSERT INTO roles VALUES (?,?)', data)
+                conn.commit()
+                conn.close()
 
             await ctx.send('Created role {}.'.format(role))
 
+        config.role_cache_updated = True
+
     @commands.has_any_role('Moderator')
     @commands.command(name='deleterole', aliases=['delrole', 'removerole'])
-    async def deleterole_command(self, ctx, *, role):
+    async def deleterole_command(self, ctx, *, role_name):
         """Delete self-joinable role."""
-        conn = sqlite3.connect('databases/roles.db')
-        c = conn.cursor()
+        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        
+        if role is not None:
+            conn = sqlite3.connect('databases/roles.db')
+            c = conn.cursor()
 
-        name = (role, )
-        search = c.execute('SELECT * FROM roles WHERE name=?', name)
-        data = c.fetchall()
+            name = (role_name, )
+            search = c.execute('SELECT * FROM roles WHERE name=?', name)
+            data = c.fetchall()
 
-        if len(data) > 0:
-            deleted = c.execute('DELETE FROM roles WHERE name=?', name)
+            if len(data) > 0:
+                deleted = c.execute('DELETE FROM roles WHERE name=?', name)
+            else:
+                await ctx.send('That emote does not exist.')
+
+            conn.commit()
+            conn.close()
+
+            config.role_cache_updated = True
+
+            await ctx.send(f'Deleted role {role_name}.')
         else:
-            await ctx.send('That emote does not exist.')
-
-        conn.commit()
-        conn.close()
-
-        await ctx.send(f'Deleted role {role}.')
+            await ctx.send(f'{role_name} does not exist.')
 
 
 def setup(bot):

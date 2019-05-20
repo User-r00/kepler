@@ -23,7 +23,7 @@ class Twitch(commands.Cog):
         self.bot = bot
         self.check_channel.start()
 
-    @tasks.loop(seconds=60.0)
+    @tasks.loop(seconds=10.0)
     async def check_channel(self):
         """Check if a Twitch channel is live."""
         # Channel to send notifications.
@@ -47,44 +47,43 @@ class Twitch(commands.Cog):
                 stream = data['stream']
 
                 # If stream is live.
-                if stream is not None and semaphores.is_live is False:
+                if stream is not None:
+                    if semaphores.is_live is False:
+                        # Set live semaphore.
+                        semaphores.is_live = True
 
-                    # Set live semaphore.
-                    semaphores.is_live = True
+                        # Embed data
+                        URL = stream['channel']['url']
+                        GAME = stream['game']
+                        NAME = stream['channel']['display_name']
+                        TITLE = f'{NAME} is streaming {GAME}!'
+                        DESC = stream['channel']['status']
+                        IMAGE = stream['preview']['large']
 
-                    # Embed data
-                    URL = stream['channel']['url']
-                    GAME = stream['game']
-                    NAME = stream['channel']['display_name']
-                    TITLE = f'{NAME} is streaming {GAME}!'
-                    DESC = stream['channel']['status']
-                    IMAGE = stream['preview']['large']
+                        # Package the embed.
+                        embed = discord.Embed(title=TITLE,
+                                              description=DESC,
+                                              color=0x6441a5,
+                                              url=URL)
+                        embed.set_image(url=IMAGE)
 
-                    # Package the embed.
-                    embed = discord.Embed(title=TITLE,
-                                          description=DESC,
-                                          color=0x6441a5,
-                                          url=URL)
-                    embed.set_image(url=IMAGE)
+                        # Get Twitch Announcements role.
+                        guild = self.bot.guilds[0]
+                        role = guild.get_role(577531901515137054)
 
-                    # Get Twitch Announcements role.
-                    guild = self.bot.guilds[0]
-                    role = guild.get_role(577531901515137054)
+                        # Alert users.
+                        await announce_channel.send(role.mention)
+                        await announce_channel.send(embed=embed)
 
-                    # Alert users.
-                    await announce_channel.send(role.mention)
-                    await announce_channel.send(embed=embed)
-
-                    self.bot.logger.info(f'{NAME} is live. Notifying the gang.')
+                        self.bot.logger.info(f'{NAME} is live. Notifying the gang.')  
                 else:
                     semaphores.is_live = False
                     self.bot.logger.info('User is not live. Checking again '
-                                         'in 60 seconds.')
+                                             'in 60 seconds.')
 
     @check_channel.before_loop
     async def before_check_channel(self):
-        """Run before the task above is done. This lets us wait until the bot
-        is fully up to poll Twitch."""
+        """Run before the task above is done."""
         await self.bot.wait_until_ready()
 
 
