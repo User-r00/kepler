@@ -23,7 +23,8 @@ import config
 from tokens import tokens as TOKENS
 
 # Extensions to load at runtime.
-startup_extensions = ['extensions.movies',
+startup_extensions = ['extensions.general',
+                      'extensions.movies',
                       'extensions.onboarding',
                       'extensions.roles',
                       'extensions.twitch']
