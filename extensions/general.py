@@ -21,7 +21,6 @@ class General(commands.Cog):
     def __init__(self, bot):
         """Init."""
         self.bot = bot
-        self.check_channel.start()
 
     @commands.command(name='wishlist')
     async def wishlist_cmd(self, ctx):
