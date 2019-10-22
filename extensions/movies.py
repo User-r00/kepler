@@ -10,7 +10,7 @@ import sqlite3
 
 import aiohttp
 import asyncio
-import config
+from config import config
 import logging
 from tokens import tokens
 
