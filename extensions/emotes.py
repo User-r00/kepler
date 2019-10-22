@@ -34,7 +34,7 @@ class Emotes(commands.Cog):
         conn.commit()
         conn.close()
 
-    @commands.has_any_role(C.MOD, C.OPS)
+    # @commands.has_any_role(C.MOD, C.OPS)
     @commands.command(name='addemote')
     async def addemote_command(self, ctx, name, link):
         """Create a new emote."""
