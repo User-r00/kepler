@@ -7,7 +7,7 @@ import json
 import sqlite3
 
 import asyncio
-import config
+from config import config
 import logging
 
 import discord

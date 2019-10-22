@@ -20,7 +20,7 @@ import logging
 import discord
 from discord.ext import commands
 from config import config
-from tokens import tokens as TOKENS
+from credentials import tokens as TOKENS
 
 # Extensions to load at runtime.
 startup_extensions = ['extensions.emotes',
