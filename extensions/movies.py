@@ -12,7 +12,7 @@ import aiohttp
 import asyncio
 from config import config
 import logging
-from tokens import tokens
+from credentials import tokens
 
 import discord
 from discord.ext import commands

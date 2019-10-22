@@ -16,7 +16,7 @@ from PIL import Image
 from config import config as C
 import discord
 from discord.ext import commands
-from custom_classes.paste_it import Paste_it
+from paste_it import Paste_it
 
 
 class Emotes(commands.Cog):
@@ -127,7 +127,7 @@ class Emotes(commands.Cog):
                 self.bot.logger.info(f'{ctx.author} added the emote {name}.')
 
     @commands.has_any_role(C.MOD)
-    @commands.command(name='replaceemote')
+    @commands.command(name='overwriteemote')
     async def overwrite_emote_command(self, ctx, name, link):
         """Overwrite an emote. Mod only."""
         conn = sqlite3.connect('databases/emotes.db')
