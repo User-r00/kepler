@@ -60,7 +60,7 @@ class Utilities(commands.Cog):
         await ctx.send(role_list)
 
     @commands.has_any_role('Member')
-    @commands.command(name='subscribe')
+    @commands.command(name='subscribe', aliases=['join'])
     async def toggle_roll_command(self, ctx, *, role_name: str):
         """Add or remove requested role for a user."""
         role = discord.utils.get(ctx.guild.roles, name=role_name)
