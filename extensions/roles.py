@@ -7,7 +7,7 @@ import json
 import sqlite3
 
 import asyncio
-from config import config
+from config import config as C
 import logging
 
 import discord
@@ -44,7 +44,7 @@ class Utilities(commands.Cog):
         c = conn.cursor()
         data = c.execute('SELECT * FROM roles')
 
-        if config.role_cache_updated:
+        if C.role_cache_updated:
             msg = '[All available self-joinable Kepler Roles]\n\n'
 
             for i in data:
@@ -52,10 +52,10 @@ class Utilities(commands.Cog):
 
             paste = Paste_it()
             role_list = await paste.new_paste(msg)
-            config.role_cache_updated = False
-            config.role_link = role_list
+            C.role_cache_updated = False
+            C.role_link = role_list
         else:
-            role_list = config.role_link
+            role_list = C.role_link
 
         await ctx.send(role_list)
 
@@ -77,7 +77,7 @@ class Utilities(commands.Cog):
             ctx.send('The role {role_name} doesn\'t seem to exist. Use '
                      '.roleslist to confirm.')
 
-    @commands.has_any_role('Moderator')
+    @commands.has_any_role(C.MOD)
     @commands.command(name='createrole', aliases=['newrole', 'addrole'])
     async def createrole_command(self, ctx, role: str, color: discord.Colour,
                                  joinable=False):
@@ -109,9 +109,9 @@ class Utilities(commands.Cog):
 
             await ctx.send('Created role {}.'.format(role))
 
-        config.role_cache_updated = True
+        C.role_cache_updated = True
 
-    @commands.has_any_role('Moderator')
+    @commands.has_any_role(C.MOD)
     @commands.command(name='deleterole', aliases=['delrole', 'removerole'])
     async def deleterole_command(self, ctx, *, role_name):
         """Delete self-joinable role."""
@@ -133,7 +133,7 @@ class Utilities(commands.Cog):
             conn.commit()
             conn.close()
 
-            config.role_cache_updated = True
+            C.role_cache_updated = True
 
             await ctx.send(f'Deleted role {role_name}.')
         else:
