@@ -77,8 +77,8 @@ async def on_message(message):
 
     # Monitor Terminal channel and delete anything that isn't our command.
     if message.channel.id == 577021097116041216:
-        if message.content != '.join_r00m8':
-            await message.channel.send('Enter .join_r00m8.',
+        if message.content != '.join_r00m':
+            await message.channel.send('Enter .join_r00m.',
                                        delete_after=10.0)
             await asyncio.sleep(10)
             await message.delete()
