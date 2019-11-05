@@ -28,7 +28,8 @@ startup_extensions = ['extensions.emotes',
                       'extensions.movies',
                       'extensions.onboarding',
                       'extensions.roles',
-                      'extensions.twitch']
+                      'extensions.twitch',
+                      'extensions.watchlist']
 
 
 def get_prefix(bot, message):
