@@ -66,7 +66,7 @@ class Watchlist(commands.Cog):
 
         return ' '.join(split_title)
 
-    @commands.has_any_role(C.MOD, C.OPS, C.MIL)
+    @commands.has_any_role(C.MOD, C.SUB)
     @commands.command(name='addmovie')
     async def add_movie_command(self, ctx, *, title):
         """Add a movie to the watchlist."""
@@ -83,7 +83,7 @@ class Watchlist(commands.Cog):
         await ctx.message.delete(delay=C.DEL_DELAY)
         self.bot.logger.info(f'{ctx.author} added {title} to the watch list.')
 
-    @commands.has_any_role(C.MOD, C.OPS)
+    @commands.has_any_role(C.MOD, C.SUB)
     @commands.command(name='removeemovie')
     async def delete_movie_commmand(self, ctx, *, title):
         """Delete a movie from the watchlist."""
@@ -104,7 +104,7 @@ class Watchlist(commands.Cog):
                 await ctx.send(f'{title} does not appear to exist.')
                 self.bot.logger.info(f'{ctx.author} tried to remove {title} from the watch list but it doesn\'t exist.')
 
-    @commands.has_any_role(C.MOD, C.OPS)
+    @commands.has_any_role(C.MOD, C.SUB)
     @commands.command(name='watched')
     async def watched_command(self, ctx, *, title):
         """Mark a movie as watched."""
