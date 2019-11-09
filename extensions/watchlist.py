@@ -1,7 +1,7 @@
 #!usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Games extension for Kepler."""
+"""Movie extension for Kepler."""
 
 import asyncio
 import aiohttp

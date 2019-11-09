@@ -22,7 +22,7 @@ ENV = 'PROD'
 if ENV == 'UAT':
     # User roles
     MOD = 472219677162995713
-
+    SUB = 574862462848073758
     # Bot Token
     TOKEN = TOKENS.UAT
 else:

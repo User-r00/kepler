@@ -1,0 +1,126 @@
+#!usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Gaming extension for Kepler."""
+
+import asyncio
+import aiohttp
+import aiosqlite
+from datetime import datetime
+import random
+import re
+
+import discord
+from discord.ext import commands
+
+from config import config as C
+from paste_it import Paste_it
+
+
+class Gaming(commands.Cog):
+    """Gaming commands."""
+
+    def __init__(self, bot):
+        """Init."""
+        self.bot = bot
+        self.task = self.bot.loop.create_task(self.check_db('gaming', 'nintendofriendcodes'))
+
+    async def check_db(self, name, table):
+        """Create db if it doesn't exist."""
+        async with aiosqlite.connect(f'databases/{name}.db') as db:
+            await db.execute('CREATE TABLE IF NOT EXISTS nintendofriendcodes (name text PRIMARY KEY, code text)')
+            await db.commit()
+
+
+    async def sanitize_code(self, code):
+        """Santize a Nintendo friend code."""
+
+        # Strip all non-numbers.
+        code = re.sub('[^0-9]', '', code)
+
+        # Check code length. Needs to be 12 to be valid.
+        if len(code) != 12:
+            return 'invalid length'
+
+        # Insert dashes to make all codes uniform.
+        split_code = [char for char in code]
+        split_code.insert(4, '-')
+        split_code.insert(9, '-')
+
+        sanitized_code = ''
+        for i in split_code:
+            sanitized_code = f'{sanitized_code}{i}'
+
+        return sanitized_code
+
+
+    @commands.command(name='savefc')
+    async def save_fc_command(self, ctx, code=None, user: discord.Member=None):
+        """Save a user's friend code."""
+        # If a friend code wasn't provided set the user to the message author.
+        if user is None:
+            user = ctx.author
+
+        # If a code has not been provided then alert the user.
+        if code is None:
+            await ctx.send('You need to provide a friend code.', delete_after=C.DEL_DELAY)
+            await ctx.message.delete(C.DEL_DELAY)
+            self.bot.logger.info(f'{ctx.author.name} tried to add an empty friend code.')
+            return
+
+        code = await self.sanitize_code(code)
+
+        if code == 'invalid length':
+            await ctx.send('That code doesn\'t have enough digits.', delete_after=C.DEL_DELAY)
+            await ctx.message.delete(C.DEL_DELAY)
+            self.bot.logger.info(f'{ctx.author.name} tried to save a friend code that is too short.')
+            return
+
+        # Otherwise, we have a good code and can continue.        
+        async with aiosqlite.connect('databases/gaming.db') as db:
+            data = (user.name, )
+            async with db.execute('SELECT * FROM nintendofriendcodes WHERE name=?', data) as cursor:
+                exists = await cursor.fetchall()
+
+            # If a code exists then notify the user.
+            if exists:
+                await ctx.send(f'A friend code already exists for {user.name}.', delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+                return
+
+            # Check if the friend code already exists
+            data = (code, )
+            async with db.execute('SELECT * FROM nintendofriendcodes WHERE code=?', data) as cursor:
+                exists = await cursor.fetchall()
+
+            if exists:
+                await ctx.send(f'The code {code} already belongs to someone.', delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+                return
+
+            # Finally, add the code and notify the user.
+            async with aiosqlite.connect('databases/gaming.db') as db:
+                data = (user.name, code)
+                await db.execute('INSERT INTO nintendofriendcodes VALUES (?,?)', data)
+                await db.commit()
+            await ctx.send(f'{user.name}\'s friend code saved.', delete_after=C.DEL_DELAY)
+            await ctx.message.delete(delay=C.DEL_DELAY)
+            self.bot.logger.info(f'{ctx.author.name} added {user}\' friend code.')
+
+    @commands.command(name='fc')
+    async def fc_command(self, ctx, user: discord.Member=None, code=None):
+        """Lookup a user's friend code."""
+        # If a user isn't provided then assume we are looking up the message autho.
+        if user is None:
+            user = ctx.author
+
+        async with aiosqlite.connect('databases/gaming.db') as db:
+            data = (user.name, )
+            async with db.execute('SELECT code FROM nintendofriendcodes WHERE name=?', data) as cursor:
+                codes = await cursor.fetchall()
+                for code in codes:
+                    await ctx.send(f'{user.name}\'s friend code is `{code[0]}`.')
+
+
+def setup(bot):
+    bot.add_cog(Gaming(bot))
