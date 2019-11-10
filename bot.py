@@ -50,8 +50,9 @@ logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(filename='kepler.log',
                               encoding='utf-8',
                               mode='a')
-form = '%(asctime)s:%(levelname)s:%(name)s:%(message)s'
-handler.setFormatter(logging.Formatter())
+# form = '%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+log_form = '%(asctime)s | %(levelname)s | %(message)s'
+handler.setFormatter(logging.Formatter(log_form))
 logger.addHandler(handler)
 bot.logger = logger
 

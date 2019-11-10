@@ -23,13 +23,11 @@ class Twitch(commands.Cog):
         self.bot = bot
         self.check_channel.start()
 
-    @tasks.loop(seconds=10.0)
+    @tasks.loop(seconds=60.0)
     async def check_channel(self):
         """Check if a Twitch channel is live."""
         # Channel to send notifications.
         announce_channel = self.bot.get_channel(574845713016553490)
-        if announce_channel is not None:
-            self.bot.logger.info('Got announce channel.')
 
         # Twitch channel ID for one r00 boi.
         USER = '195457791'
@@ -78,8 +76,6 @@ class Twitch(commands.Cog):
                         self.bot.logger.info(f'{NAME} is live. Notifying the gang.')  
                 else:
                     semaphores.is_live = False
-                    self.bot.logger.info('User is not live. Checking again '
-                                             'in 60 seconds.')
 
     @check_channel.before_loop
     async def before_check_channel(self):
