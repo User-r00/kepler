@@ -16,7 +16,7 @@ emote_link = ''
 role_cache_updated = True
 role_link = ''
 
-ENV = 'PROD'
+ENV = 'UAT'
 
 # Roles
 if ENV == 'UAT':

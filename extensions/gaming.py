@@ -54,7 +54,7 @@ class Gaming(commands.Cog):
         return sanitized_code
 
 
-    @commands.command(name='savefc')
+    @commands.command(name='savefc', aliases=['addfc', 'newfc', 'stashfc'])
     async def save_fc_command(self, ctx, code=None, user: discord.Member=None):
         """Save a user's friend code."""
         # If a friend code wasn't provided set the user to the message author.
@@ -110,7 +110,7 @@ class Gaming(commands.Cog):
     @commands.command(name='fc')
     async def fc_command(self, ctx, user: discord.Member=None, code=None):
         """Lookup a user's friend code."""
-        # If a user isn't provided then assume we are looking up the message autho.
+        # If a user isn't provided then assume we are looking up the message author.
         if user is None:
             user = ctx.author
 
@@ -118,9 +118,64 @@ class Gaming(commands.Cog):
             data = (user.name, )
             async with db.execute('SELECT code FROM nintendofriendcodes WHERE name=?', data) as cursor:
                 codes = await cursor.fetchall()
-                for code in codes:
-                    await ctx.send(f'{user.name}\'s friend code is `{code[0]}`.')
 
+                if len(codes) > 0:
+                    for code in codes:
+                        await ctx.send(f'{user.name}\'s friend code is `{code[0]}`.', delete_after=C.DEL_DELAY)
+                        await ctx.message.delete(delay=C.DEL_DELAY)
+                        self.bot.logger.info(f'{ctx.author.name} used {ctx.command}. Code successfully sent.')
+                else:
+                    await ctx.send(f'Unable to find a code for {user.name}.', delete_after=C.DEL_DELAY)
+                    await ctx.message.delete(delay=C.DEL_DELAY)
+                    self.bot.logger.info(f'{ctx.author.name} used {ctx.command}. No code was found.')
+
+    @commands.command(name='fclist')
+    async def list_fc_command(self, ctx):
+        """List all friend codes."""
+        async with aiosqlite.connect('databases/gaming.db') as db:
+            async with db.execute('SELECT * FROM nintendofriendcodes') as cursor:
+                fcs = await cursor.fetchall()
+
+                # Generate a string with all of the friend codes.
+                msg = 'NINTENDO FRIEND CODES\n------------------------\n'
+                for fc in fcs:
+                    msg = f'{msg}\n{fc[0]}: {fc[1]}'
+
+                # Make a new paste.
+                paste = Paste_it()
+                fclist = await paste.new_paste(msg)
+
+                # Send the message.
+                self.bot.logger.info(f'{ctx.author.name} used {ctx.command.name}.')
+                await ctx.send(fclist, delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+
+    @commands.command(name='deletefc', aliases=['removefc', 'killfc'])
+    async def delete_fc_command(self, ctx, user: discord.Member=None, code=None):
+        """Delete a friend code if it exists."""
+        # If a user isn't provided then assume we are looking up the message author.
+        if user is None:
+            user = ctx.author
+
+        # Check if entry exists.
+        async with aiosqlite.connect('databases/gaming.db') as db:
+            data = (user.name, )
+            async with db.execute('SELECT * FROM nintendofriendcodes WHERE name=?', data) as cursor:
+                exists = await cursor.fetchall()
+
+            if exists:
+                # Delete entry
+                data = (user.name, )
+                await db.execute('DELETE FROM nintendofriendcodes WHERE name=?', data)
+                await db.commit()
+
+                # Notify user.
+                await ctx.send(f'Deleted friend code for {user.name}.', delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+            else:
+                await ctx.send(f'Unable to find a friend code for {user.name}.', delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+                self.bot.logger.info(f'{ctx.author.name} used {ctx.command.name}. No entries were found.')
 
 def setup(bot):
     bot.add_cog(Gaming(bot))
