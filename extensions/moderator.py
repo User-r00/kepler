@@ -30,6 +30,10 @@ class Moderator(commands.Cog):
         if message.author == self.bot.user:
             return
 
+        # Ignore terminal messages.
+        if message.channel.id == 577021097116041216:
+            return
+
         # Labels.
         author = message.author.name
         channel = message.channel.name
