@@ -16,6 +16,9 @@ emote_link = ''
 role_cache_updated = True
 role_link = ''
 
+# Audit log channel ID.
+LOG_CHANNEL = 642907248938713157
+
 ENV = 'PROD'
 
 # Roles

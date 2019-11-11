@@ -19,13 +19,14 @@ import logging
 
 import discord
 from discord.ext import commands
-from config import config
+from config import config as C
 from credentials import tokens as TOKENS
 
 # Extensions to load at runtime.
 startup_extensions = ['extensions.emotes',
                       'extensions.gaming',
                       'extensions.general',
+                      'extensions.moderator',
                       'extensions.movies',
                       'extensions.onboarding',
                       'extensions.roles',
@@ -35,14 +36,14 @@ startup_extensions = ['extensions.emotes',
 
 def get_prefix(bot, message):
     """Get the callable prefix for the bot."""
-    prefixes = [config.PREFIX]
+    prefixes = [C.PREFIX]
 
     # If we are in a guild, we allow for the user to mention us or use any of
     # the prefixes.
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 
-bot = commands.Bot(command_prefix=get_prefix, description=config.DESCRIPTION)
+bot = commands.Bot(command_prefix=get_prefix, description=C.DESCRIPTION)
 
 # Setup logger.
 logger = logging.getLogger('Kepler')
@@ -68,7 +69,7 @@ async def on_ready():
     bot.logger.info(f'\nLogged in as: {bot.user.name}\n')
 
     # Set bot presence
-    await bot.change_presence(activity=discord.Game(name=config.PRESENCE))
+    await bot.change_presence(activity=discord.Game(name=C.PRESENCE))
 
 
 @bot.event
@@ -87,8 +88,8 @@ async def on_message(message):
             await message.delete()
 
     # Check for bot command
-    if message.content.startswith(config.PREFIX):
-        emote_name = message.content.split(config.PREFIX)[1]
+    if message.content.startswith(C.PREFIX):
+        emote_name = message.content.split(C.PREFIX)[1]
 
         conn = sqlite3.connect('databases/emotes.db')
         c = conn.cursor()
@@ -130,6 +131,6 @@ if __name__ == '__main__':
             print(f'[ERR] Can\'t load extension {extension}\n{exc}')
 
 # Run the bot
-bot.run(TOKENS.PROD, bot=True, reconnect=True)
+bot.run(C.TOKEN, bot=True, reconnect=True)
 
 # .r00
