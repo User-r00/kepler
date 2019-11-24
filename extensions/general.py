@@ -22,10 +22,10 @@ class General(commands.Cog):
         """Init."""
         self.bot = bot
 
-    @commands.command(name='wishlist')
-    async def wishlist_cmd(self, ctx):
-        '''Amason stream wishlist.'''
-        await ctx.send('Want to help move the stream forward? Check out the link https://www.amazon.com/hz/wishlist/ls/38YUIJLQQTS0F?ref_=wl_share !')
+    # @commands.command(name='wishlist')
+    # async def wishlist_cmd(self, ctx):
+    #     '''Amason stream wishlist.'''
+    #     await ctx.send('Want to help move the stream forward? Check out the link https://www.amazon.com/hz/wishlist/ls/38YUIJLQQTS0F?ref_=wl_share !')
 
     @commands.command(name='socials', aliases=['twitter', 'instagram', 'insta'])
     async def social_command(self, ctx):

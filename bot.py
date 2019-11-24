@@ -24,12 +24,14 @@ from credentials import tokens as TOKENS
 
 # Extensions to load at runtime.
 startup_extensions = ['extensions.emotes',
+                      'extensions.errors',
                       'extensions.gaming',
                       'extensions.general',
                       'extensions.moderator',
                       'extensions.movies',
                       'extensions.onboarding',
                       'extensions.roles',
+                      'extensions.secretsanta',
                       'extensions.twitch',
                       'extensions.watchlist']
 
@@ -108,7 +110,7 @@ async def on_message(message):
                 # Update emote usage.
                 data = (data[3] + 1, emote_name)
                 c.execute('UPDATE emotes SET count=? WHERE name=?', data)
-                bot.logger.info('Emote {} usage updated.')
+                bot.logger.info(f'Emote {emote_name} usage updated.')
 
         except (sqlite3.IntegrityError, TypeError) as e:
             bot.logger.error(f'[WARN] {e}.')

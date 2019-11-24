@@ -7,7 +7,7 @@ Configurations for Kepler.
 from credentials import tokens as TOKENS
 
 PREFIX = '.'
-PRESENCE = 'in the shadows.'
+PRESENCE = 'Secret Santa.'
 DESCRIPTION = 'A Discord bot for the r00m.'
 
 emote_cache_updated = True
