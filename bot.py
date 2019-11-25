@@ -25,6 +25,7 @@ from credentials import tokens as TOKENS
 # Extensions to load at runtime.
 startup_extensions = ['extensions.emotes',
                       'extensions.errors',
+                      'extensions.fmk',
                       'extensions.gaming',
                       'extensions.general',
                       'extensions.moderator',
