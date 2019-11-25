@@ -190,8 +190,14 @@ class FMK(commands.Cog):
         # Generate a list of all names.
         names = [name[0] for name in data]
 
-        # Select three names from the list and store them.
+        # Empty store for names.
         store = []
+
+        # If Autumn is playing.
+        if ctx.author.id == 240287770512326657:
+            store.append('Christian Slater')
+
+        # Select three names from the list and store them.
         while len(store) < 3:
             name = random.choice(names)
             if name in store:
