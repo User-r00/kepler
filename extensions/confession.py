@@ -23,7 +23,7 @@ class Confession(commands.Cog):
         channel = self.bot.get_channel(479341433623543811)
         
         # Send message.
-        await channel.send(f'**Confession:** {confession}')
+        await channel.send(confession)
         
 def setup(bot):
     """Add cog to bot."""
