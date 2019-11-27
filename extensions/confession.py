@@ -8,10 +8,10 @@ from discord.ext import commands
 
 from config import config as C
 
-class Confession(commands.cog):
+class Confession(commands.Cog):
     """Confession extension."""
     
-    def __init__(self,bot):
+    def __init__(self, bot):
         """Init."""
         self.bot = bot
         
