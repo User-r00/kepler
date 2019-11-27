@@ -3,6 +3,10 @@
 
 """Confession extension for Kepler."""
 
+import discord
+from discord.ext import commands
+
+from config import config as C
 
 class Confession(commands.cog):
     """Confession extension."""
