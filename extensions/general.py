@@ -53,7 +53,7 @@ class General(commands.Cog):
     @commands.command(name='log')
     async def log_command(self, ctx):
         """Retrieve the last 25 lines of the logs."""
-        lines = subprocess.check_output(['tail', '-20', 'logs/brave_traveler.log'])
+        lines = subprocess.check_output(['tail', '-20', 'logs/kepler.log'])
         lines = lines.decode('utf-8')
         paste = Paste_it()
         results = await paste.new_paste(lines)
