@@ -44,10 +44,10 @@ class Voting(commands.Cog):
         await message2.add_reaction('👍')
 
         # Add space for formatting.
-        await ctx.channel.send('_ _\n')
+        # await ctx.channel.send('_ _\n')
 
         # Delete the invocation message.
-        await ctx.message.delete(delay=C.DEL_DELAY)
+        # await ctx.message.delete(delay=C.DEL_DELAY)
 
         # Log the event.
         self.bot.logger.info(f'{ctx.author} started a vote for {option1} or {option2}.')
