@@ -23,7 +23,8 @@ from config import config as C
 from credentials import tokens as TOKENS
 
 # Extensions to load at runtime.
-startup_extensions = ['extensions.confession',
+startup_extensions = ['extensions.8ball',
+                      'extensions.confession',
                       'extensions.emotes',
                       'extensions.errors',
                       'extensions.fmk',
@@ -32,9 +33,10 @@ startup_extensions = ['extensions.confession',
                       'extensions.moderator',
                       'extensions.movies',
                       'extensions.onboarding',
+                      'extensions.polls',
                       'extensions.roles',
-                      'extensions.secretsanta',
                       'extensions.twitch',
+                      'extensions.voting',
                       'extensions.watchlist']
 
 

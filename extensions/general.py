@@ -22,24 +22,19 @@ class General(commands.Cog):
         """Init."""
         self.bot = bot
 
-    # @commands.command(name='wishlist')
-    # async def wishlist_cmd(self, ctx):
-    #     '''Amason stream wishlist.'''
-    #     await ctx.send('Want to help move the stream forward? Check out the link https://www.amazon.com/hz/wishlist/ls/38YUIJLQQTS0F?ref_=wl_share !')
-
     @commands.command(name='socials', aliases=['twitter', 'instagram', 'insta'])
     async def social_command(self, ctx):
         """Social links."""
-        twitter = 'https://www.twitter.com/DarkPlagueDr'
-        insta = 'https://www.instagram.com/DarkPlagueDr'
+        twitter = 'https://www.twitter.com/spaceboyr00'
+        insta = 'https://www.instagram.com/spaceboyr00'
         await ctx.send(f'Follow me on Twitter: {twitter} or Instagram: '
                        f'{insta} .')
 
     @commands.command(name='address')
     async def address_command(self, ctx):
         """Shipping address."""
-        await ctx.send('Shirts, spandex, and glitter bombs can be sent to P.O. '
-                       'Box 28331, San Jose CA, 95159.')
+        await ctx.send('Shirts, "cook books", and glitter bombs can be sent '
+                       'to P.O. Box 28331, San Jose CA, 95159.')
 
     @commands.command(name='repo', aliases=['code', 'github', 'git'])
     async def repo_command(self, ctx):
@@ -53,6 +48,17 @@ class General(commands.Cog):
         URL = 'https://steamcommunity.com/profiles/76561198828992335/'
         await ctx.send(f'Check my Steam profile at {URL} ! Be sure to add me '
                        f'while you\'re there!')
+
+    @commands.command(name='log')
+    async def log_command(self, ctx):
+        """Retrieve the last 25 lines of the logs."""
+        lines = subprocess.check_output(['tail', '-20', 'logs/brave_traveler.log'])
+        lines = lines.decode('utf-8')
+        paste = Paste_it()
+        results = await paste.new_paste(lines)
+        await ctx.message.delete(delay=C.DEL_DELAY)
+        self.bot.logger.info(f'{ctx.author} used {ctx.command}.')
+        await ctx.send(results)
 
 
 def setup(bot):
