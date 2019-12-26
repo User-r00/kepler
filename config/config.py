@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-Configurations for Kepler.
-"""
+"""Configurations for Kepler."""
+
 from credentials import tokens as TOKENS
 
 PREFIX = '.'
-PRESENCE = 'Secret Santa.'
+PRESENCE = '2020.'
 DESCRIPTION = 'A Discord bot for the r00m.'
+VERSION = '1.1'
 
 emote_cache_updated = True
 emote_link = ''
