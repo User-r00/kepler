@@ -15,6 +15,7 @@ from discord.ext import tasks, commands
 import semaphores
 from credentials import tokens as TOKENS
 
+from config import config as C
 from paste_it import Paste_it
 
 class General(commands.Cog):
