@@ -14,7 +14,7 @@
 # from config import config as C
 
 
-class 8Ball(commands.Cog):
+class EightBall(commands.Cog):
     """8ball class."""
 
     def __init__(self, bot):
@@ -61,7 +61,7 @@ class 8Ball(commands.Cog):
                 await db.commit()
 
     async def random_response(self):
-        '''Return random Magic 8 Ball response.'''
+        """Return random Magic 8 Ball response."""
         async with aiosqlite.connect(f'databases/8ball.db') as db:
             async with db.execute('SELECT response FROM responses ORDER BY RANDOM() LIMIT 1') as cursor:
                 response = await cursor.fetchone()
@@ -79,4 +79,5 @@ class 8Ball(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(8Ball(bot))
+    """Add cog to bot."""
+    bot.add_cog(EightBall(bot))
