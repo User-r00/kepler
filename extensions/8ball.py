@@ -3,15 +3,15 @@
 
 """Games extension for Kepler."""
 
-# import asyncio
-# import aiohttp
-# import aiosqlite
-# import random
+import asyncio
+import aiohttp
+import aiosqlite
+import random
 
-# import discord
-# from discord.ext import commands
+import discord
+from discord.ext import commands
 
-# from config import config as C
+from config import config as C
 
 
 class EightBall(commands.Cog):
