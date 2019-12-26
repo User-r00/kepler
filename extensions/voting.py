@@ -35,8 +35,8 @@ class Voting(commands.Cog):
                                           f'in {time} seconds.')
 
         # Get message objects to manipulate later.
-        message1 = await ctx.channel.sendf('```fix\n{option1}\n```')
-        message2 = await ctx.channel.send('```fix\n{option2}\n```')
+        message1 = await ctx.channel.send(f'```fix\n{option1}\n```')
+        message2 = await ctx.channel.send(f'```fix\n{option2}\n```')
 
         # Add reactions to start voting.
         await message1.add_reaction('👍')
