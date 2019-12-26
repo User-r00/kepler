@@ -8,6 +8,7 @@ import aiohttp
 import asyncio
 import logging
 from pprint import pprint
+import subprocess
 
 import discord
 from discord.ext import tasks, commands
