@@ -84,22 +84,22 @@ class Moderator(commands.Cog):
         channel = self.bot.get_channel(C.LOG_CHANNEL)
         await channel.send(embed=embed)
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        """Log when a user joins the server."""
+    # @commands.Cog.listener()
+    # async def on_member_join(self, member):
+    #     """Log when a user joins the server."""
 
-        # Labels.
-        date = before.created_at.strftime('%m/%d/%y')
-        time = before.created_at.strftime('%H:%S')
+    #     # Labels.
+    #     date = before.created_at.strftime('%m/%d/%y')
+    #     time = before.created_at.strftime('%H:%S')
 
-        # Formatter
-        embed = discord.Embed(title='User joined the server.',
-                              description=f'{member.name} joined on {date} at {time}.',
-                              color=0x000000,
-                              url=None)
+    #     # Formatter
+    #     embed = discord.Embed(title='User joined the server.',
+    #                           description=f'{member.name} joined on {date} at {time}.',
+    #                           color=0x000000,
+    #                           url=None)
         
-        channel = self.bot.get_channel(C.LOG_CHANNEL)
-        await channel.send(embed=embed)
+    #     channel = self.bot.get_channel(C.LOG_CHANNEL)
+    #     await channel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):

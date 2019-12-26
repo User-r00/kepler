@@ -8,7 +8,7 @@ from credentials import tokens as TOKENS
 PREFIX = '.'
 PRESENCE = '2020.'
 DESCRIPTION = 'A Discord bot for the r00m.'
-VERSION = '1.1'
+VERSION = '1.1.2'
 
 emote_cache_updated = True
 emote_link = ''
