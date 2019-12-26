@@ -52,9 +52,10 @@ def get_prefix(bot, message):
 bot = commands.Bot(command_prefix=get_prefix, description=C.DESCRIPTION)
 
 # Setup logger.
+os.makedirs('logs', exist_ok=False)
 logger = logging.getLogger('Kepler')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='kepler.log',
+handler = logging.FileHandler(filename='logs/kepler.log',
                               encoding='utf-8',
                               mode='a')
 # form = '%(asctime)s:%(levelname)s:%(name)s:%(message)s'
