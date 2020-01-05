@@ -25,7 +25,7 @@ class NeverHaveIEver(commands.Cog):
         for letter in statement:
             if statement.index(letter) == 0:
                 question += letter.lower()
-            else
+            else:
                 question += letter
 
         await ctx.channel.send(f'**New NHIE.**')
