@@ -33,6 +33,7 @@ class NeverHaveIEver(commands.Cog):
         await channel.send(f'**New NHIE.**')
         message = await channel.send(f'```fix\nNever have I ever {question}.\n```')
         await message.add_reaction('🍺')
+        await message.add_reaction('❌')
         await ctx.message.delete(delay=C.DEL_DELAY)
         self.bot.logger.info(f'{ctx.author} created a NHIE on {question}.')
 
