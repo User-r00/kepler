@@ -19,10 +19,17 @@ class NeverHaveIEver(commands.Cog):
         self.bot = bot
 
     @commands.command(name='neverhaveiever', aliases=['nhie'])
-    async def nhie_command(self, ctx, *, question):
+    async def nhie_command(self, ctx, *, statement):
         """Create a new NHIE."""
+        question = ''
+        for letter in statement:
+            if statement.index(letter) == 0:
+                question += letter.lower()
+            else
+                question += letter
+
         await ctx.channel.send(f'**New NHIE.**')
-        message = await ctx.channel.send(f'```fix\nNever have I ever {question}\n```')
+        message = await ctx.channel.send(f'```fix\nNever have I ever {question}.\n```')
         await message.add_reaction('🍺')
         await ctx.message.delete(delay=C.DEL_DELAY)
         self.bot.logger.info(f'{ctx.author} created a NHIE on {question}.')
