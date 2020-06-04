@@ -67,7 +67,7 @@ class EightBall(commands.Cog):
                 response = await cursor.fetchone()
         return response[0]
 
-    @commands.command(name='8ball', aliases=[''])
+    @commands.command(name='8ball', aliases=[])
     async def magic8ball_command(self, ctx, question=None):
         """Shake the Magic 8 Ball."""
         response = await self.random_response()

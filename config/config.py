@@ -42,6 +42,9 @@ DEL_DELAY = 20.0
 # Filmoji
 F_PNTS = 100
 
+# Minecraft server
+mc_server_ip = '192.241.198.238'
+mc_server_port = '25565'
 
 # Repository
 BUG = 'https://github.com/User-r00/bravetraveler-issues/issues/new?assignees=&labels=&template=bug_report.md&title='
