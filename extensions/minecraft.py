@@ -34,7 +34,6 @@ class Minecraft(commands.Cog):
         """
         Check if the Minecraft server is alive.
         """
-        print('\nBEAT')
 
         # Channel to send notifications.
         announce_channel = self.bot.get_channel(630157496568512543)
@@ -52,16 +51,12 @@ class Minecraft(commands.Cog):
             
             # Set the status to be True
             if not semaphores.mc_is_alive:
-                print('Server was down but is now up.')
                 semaphores.mc_is_alive = True
 
                 if not self.first_run:
-                    print('Not the first run')
                     msg = 'The r00m\'s Minecraft server appears to be back ' \
                           'online after an outage.'
                     await announce_channel.send(msg)
-                else:
-                    print('First run.')
 
             self.bot.logger.info('MC Server heartbeat.')
 
