@@ -39,40 +39,54 @@ class Minecraft(commands.Cog):
         announce_channel = self.bot.get_channel(630157496568512543)
 
         # Ping the server
-        try:
-            # If the server is up.
-            FNULL = open(os.devnull, 'w')
-            subprocess.check_call(['nc',
-                                   '-vz',
-                                   C.mc_server_ip,
-                                   C.mc_server_port],
-                                   stdout=FNULL,
-                                   stderr=subprocess.STDOUT)
+        # try:
+        # If the server is up.
+        cmd = 'ls -la'
+        proc = await asyncio.create_subprocess_shell(cmd,
+                                                     stdout=asyncio.subprocess.PIPE,
+                                                     stderr=asyncio.subprocess.PIPE)
+
+        stdout, stderr = await proc.communicate()
+
+        if proc.returncode = 0:
+            print('Server is up.')
+        else:
+            print('Server is down.')
+
+
+            # FNULL = open(os.devnull, 'w')
+
+            # subprocess.check_call(['nc',
+            #                        '-vz',
+            #                        C.mc_server_ip,
+            #                        C.mc_server_port],
+            #                        stdout=FNULL,
+            #                        stderr=subprocess.STDOUT)
             
             # Set the status to be True
-            if not semaphores.mc_is_alive:
-                semaphores.mc_is_alive = True
+        #     if not semaphores.mc_is_alive:
+        #         semaphores.mc_is_alive = True
 
-                if not self.first_run:
-                    msg = 'The r00m\'s Minecraft server appears to be back ' \
-                          'online after an outage.'
-                    await announce_channel.send(msg)
+        #         if not self.first_run:
+        #             msg = 'The r00m\'s Minecraft server appears to be back ' \
+        #                   'online after an outage.'
+        #             await announce_channel.send(msg)
 
-            self.bot.logger.info('MC Server heartbeat.')
+        #     self.bot.logger.info('MC Server heartbeat.')
 
-            self.first_run = False
+        #     self.first_run = False
 
-        except subprocess.CalledProcessError as e:
-            if semaphores.mc_is_alive:
-                semaphores.mc_is_alive = False
-                msg = 'The r00m\'s Minecraft server is experiencing issues.' \
-                      '  Ping r00 if it persists.'
-                await announce_channel.send(msg)
+        # except subprocess.CalledProcessError as e:
+        #     if semaphores.mc_is_alive:
+        #         semaphores.mc_is_alive = False
+        #         msg = 'The r00m\'s Minecraft server is experiencing issues.' \
+        #               '  Ping r00 if it persists.'
+        #         await announce_channel.send(msg)
 
-                log = 'The Minecraft server appears to be having issues.'
-                self.bot.logger.warning(log)
+        #         log = 'The Minecraft server appears to be having issues.'
+        #         self.bot.logger.warning(log)
 
-            self.first_run = False
+        #     self.first_run = False
         
 
     @check_server_heartbeat.before_loop
