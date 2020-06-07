@@ -61,22 +61,22 @@ class Emotes(commands.Cog):
 
             self.bot.logger.warning(f'{ctx.author} tried to add the emote {name} but it is already exists.')
         else:
-            if not os.path.isdir('command_images'):
-                os.makedirs('command_images')
+            if not os.path.isdir('emotes'):
+                os.makedirs('emotes')
             # Check for supported formats.
             if link.endswith('.jpg'):
-                filename = 'command_images/{}.jpg'.format(name)
+                filename = f'{name}.jpg'
             elif link.endswith('.jpeg'):
-                filename = 'command_images/{}.jpeg'.format(name)
+                filename = f'{name}.jpeg'
             elif link.endswith('.gif'):
-                filename = 'command_images/{}.gif'.format(name)
+                filename = f'{name}.gif'
             elif link.endswith('.png'):
-                filename = 'command_images/{}.png'.format(name)
+                filename = f'{name}.png'
             else:
                 filename = None
 
             if filename is None:
-                await ctx.channel.send('Brave Traveler doesn\'t currently support that format. Message .r00 if you would like it to be.', delete_after=C.DEL_DELAY)
+                await ctx.channel.send('Kepler doesn\'t currently support that format. Message .r00 if you would like it to be.', delete_after=C.DEL_DELAY)
                 await ctx.message.delete(delay=C.DEL_DELAY)
                 self.bot.logger.warning(f'{ctx.author} tried to add the emote {name} but the format is not supported.')
                 return
@@ -84,34 +84,8 @@ class Emotes(commands.Cog):
                 async with aiohttp.ClientSession() as session:
                         async with session.get(link) as resp:
                             image = await resp.read()
-                            with open(filename, 'wb') as f:
+                            with open(f'emotes/{filename}', 'wb') as f:
                                 f.write(image)
-
-                # Auto-trim
-                # if filename.endswith('.png'):
-                #     image = Image.open(filename)
-
-                #     # Image content bounds
-                #     bounds = image.convert('RGBa').getbbox()
-
-                #     # Crop to content bounds
-                #     image = image.crop(bounds)
-
-                #     # Image dimensions
-                #     (width, height) = image.size
-
-                #     # Padding
-                #     padding = 0
-
-                #     width += padding * 2
-                #     height += padding * 2
-
-                #     # Create a new image
-                #     cropped_image = Image.new('RGBA', (width, height))
-                #     cropped_image.paste(image, (padding, padding))
-
-                #     # Save the image
-                #     cropped_image.save(filename)
 
                 date = datetime.today().strftime('%m/%d/%y')
                 data = (name, link, filename, 0, date)
@@ -143,22 +117,23 @@ class Emotes(commands.Cog):
             deleted = c.execute('DELETE FROM emotes WHERE name=?', new_name)
 
         # # Verify folder exists
-        if not os.path.isdir('command_images'):
-            os.makedirs('command_images')
+        if not os.path.isdir('emotes'):
+            os.makedirs('emotes')
 
-        if link.endswith('.jpg'):
-            filename = 'command_images/{}.jpg'.format(name)
-        elif link.endswith('.jpeg'):
-            filename = 'command_images/{}.jpeg'.format(name)
-        elif link.endswith('.gif'):
-            filename = 'command_images/{}.gif'.format(name)
-        elif link.endswith('.png'):
-            filename = 'command_images/{}.png'.format(name)
-        else:
-            filename = None
+        # Check for supported formats.
+            if link.endswith('.jpg'):
+                filename = f'{name}.jpg'
+            elif link.endswith('.jpeg'):
+                filename = f'{name}.jpeg'
+            elif link.endswith('.gif'):
+                filename = f'{name}.gif'
+            elif link.endswith('.png'):
+                filename = f'{name}.png'
+            else:
+                filename = None
 
         if filename is None:
-            await ctx.channel.send('Brave Traveler doesn\'t currently support that format. Message r00 if you would like it to.', delete_after=C.DEL_DELAY)
+            await ctx.channel.send('Kepler doesn\'t currently support that format. Message r00 if you would like it to.', delete_after=C.DEL_DELAY)
             await ctx.message.delete(delay=C.DEL_DELAY)
             self.bot.logger.warning(f'{ctx.author} tried to add the emote {name} but the format is unsupported.')
             return
@@ -167,34 +142,8 @@ class Emotes(commands.Cog):
             async with aiohttp.ClientSession() as session:
                         async with session.get(link) as resp:
                             image = await resp.read()
-                            with open(filename, 'wb') as f:
+                            with open(f'emotes/{filename}', 'wb') as f:
                                 f.write(image)
-
-        # Auto-trim
-        # if filename.endswith('.png'):  # Only do this on transparent images
-        #     image = Image.open(filename)
-
-        #     # Image content bounds
-        #     bounds = image.convert('RGBa').getbbox()
-
-        #     # Crop to content bounds
-        #     image = image.crop(bounds)
-
-        #     # Image dimensions
-        #     (width, height) = image.size
-
-        #     # Padding
-        #     padding = 0
-
-        #     width += padding * 2
-        #     height += padding * 2
-
-        #     # Create a new image
-        #     cropped_image = Image.new('RGBA', (width, height))
-        #     cropped_image.paste(image, (padding, padding))
-
-        #     # Save the image
-        #     cropped_image.save(filename)
 
         date = datetime.today().strftime('%m/%d/%y')
         data = (name, link, filename, 0, date)
@@ -210,19 +159,30 @@ class Emotes(commands.Cog):
 
     @commands.has_any_role(C.MOD)
     @commands.command(name='removeemote')
-    async def deleteemote_command(self, ctx, name):
+    async def deleteemote_command(self, ctx, emote_name):
         """Delete emote. Mod only."""
         conn = sqlite3.connect('databases/emotes.db')
         c = conn.cursor()
 
-        data = (name, )
+        # Fetch emote.
+        name = (emote_name, )
+        search = c.execute('SELECT * FROM emotes WHERE name=?', name)
+        data = c.fetchone()
+
+        # Delete the file.
+        filename = data[2]
+        os.remove(f'emotes/{filename}')
+
+        # Update the db record.
+        data = (emote_name, )
         deleted = c.execute('DELETE FROM emotes WHERE name=?', data)
         conn.commit()
         conn.close()
 
         C.emote_cache_updated = True
 
-        await ctx.channel.send(f'{name} has been deleted.',
+        image_name = name[0]
+        await ctx.channel.send(f'{image_name} has been deleted.',
                                delete_after=C.DEL_DELAY)
 
         self.bot.logger.info(f'{ctx.author} deleted the emote {name}.')
@@ -328,29 +288,6 @@ class Emotes(commands.Cog):
         await ctx.send(msg, delete_after=C.DEL_DELAY)
         await ctx.message.delete(delay=C.DEL_DELAY)
         self.bot.logger.info(f'{ctx.author} used {ctx.command}.')
-
-    @commands.command(name='randombrag')
-    async def random_brag_command(self, ctx):
-        '''Show a random brag emote.'''
-        conn = sqlite3.connect('databases/emotes.db')
-        c = conn.cursor()
-        data = c.execute('SELECT * FROM emotes')
-
-        brag_emotes = [name[0] for name in data if 'brag' in name[0]]
-        brag = random.choice(brag_emotes)
-
-        try:
-            name = (brag, )
-            search = c.execute('SELECT * FROM emotes WHERE name=?', name)
-            data = c.fetchone()
-
-            if data is not None:
-                # Send emote.
-                with open(data[2], 'rb') as f:
-                    await ctx.send(file=discord.File(f))
-                    self.bot.logger.info(f'{ctx.author} used {ctx.command}.')
-        except (sqlite3.IntegrityError, TypeError) as e:
-            self.bot.logger.error(f'[ERR] {e}.')
 
 
 def setup(bot):

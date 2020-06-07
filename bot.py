@@ -60,7 +60,7 @@ logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(filename='logs/kepler.log',
                               encoding='utf-8',
                               mode='a')
-# form = '%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+
 log_form = '%(asctime)s | %(levelname)s | %(message)s'
 handler.setFormatter(logging.Formatter(log_form))
 logger.addHandler(handler)
@@ -111,7 +111,8 @@ async def on_message(message):
 
             if data is not None:
                 # Send emote.
-                with open(data[2], 'rb') as f:
+                filename = data[2]
+                with open(f'emotes/{filename}', 'rb') as f:
                     await message.channel.send(file=discord.File(f))
 
                 # Update emote usage.

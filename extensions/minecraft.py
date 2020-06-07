@@ -28,65 +28,60 @@ class Minecraft(commands.Cog):
         self.bot = bot
         self.check_server_heartbeat.start()
         self.first_run = True
+        self.mc_is_alive = False
 
     @tasks.loop(seconds=60.0)
     async def check_server_heartbeat(self):
         """
         Check if the Minecraft server is alive.
         """
-
         # Channel to send notifications.
-        announce_channel = self.bot.get_channel(630157496568512543)
+        channel = self.bot.get_channel(630157496568512543)
 
         # Ping the server
-        # try:
-        # If the server is up.
-        cmd = 'ls -la'
+        cmd = f'nc -vz {C.mc_server_ip} {C.mc_server_port}'
+        pipe = asyncio.subprocess.PIPE
         proc = await asyncio.create_subprocess_shell(cmd,
-                                                     stdout=asyncio.subprocess.PIPE,
-                                                     stderr=asyncio.subprocess.PIPE)
+                                                     stdout=pipe,
+                                                     stderr=pipe)
 
         stdout, stderr = await proc.communicate()
 
-        if proc.returncode = 0:
-            print('Server is up.')
+        # If the server is up.
+        if proc.returncode == 0:
+
+            # If the bot was previously down.
+            if not self.mc_is_alive:
+
+                # Record that the bot is alive.
+                self.mc_is_alive = True
+
+                if not self.first_run:
+                    msg = 'The r00m\'s Minecraft server appears to be back ' \
+                          'online after an outage.'
+
+                    await channel.send(msg)
+
+                    with open(f'command_images/yay.gif', 'rb') as f:
+                        await channel.send(file=discord.File(f))
+
+            self.bot.logger.info('MC Server heartbeat.')
+            self.first_run = False
+        # If the server is down.
         else:
-            print('Server is down.')
+            if self.mc_is_alive:
+                self.mc_is_alive = False
+                msg = 'The r00m\'s Minecraft server is experiencing issues.' \
+                      '  Ping r00 if it persists.'
+                await channel.send(msg)
 
+                with open(f'command_images/pitchforks.gif', 'rb') as f:
+                    await channel.send(file=discord.File(f))
 
-            # FNULL = open(os.devnull, 'w')
+                log = 'The Minecraft server appears to be having issues.'
+                self.bot.logger.warning(log)
 
-            # subprocess.check_call(['nc',
-            #                        '-vz',
-            #                        C.mc_server_ip,
-            #                        C.mc_server_port],
-            #                        stdout=FNULL,
-            #                        stderr=subprocess.STDOUT)
-            
-            # Set the status to be True
-        #     if not semaphores.mc_is_alive:
-        #         semaphores.mc_is_alive = True
-
-        #         if not self.first_run:
-        #             msg = 'The r00m\'s Minecraft server appears to be back ' \
-        #                   'online after an outage.'
-        #             await announce_channel.send(msg)
-
-        #     self.bot.logger.info('MC Server heartbeat.')
-
-        #     self.first_run = False
-
-        # except subprocess.CalledProcessError as e:
-        #     if semaphores.mc_is_alive:
-        #         semaphores.mc_is_alive = False
-        #         msg = 'The r00m\'s Minecraft server is experiencing issues.' \
-        #               '  Ping r00 if it persists.'
-        #         await announce_channel.send(msg)
-
-        #         log = 'The Minecraft server appears to be having issues.'
-        #         self.bot.logger.warning(log)
-
-        #     self.first_run = False
+            self.first_run = False
         
 
     @check_server_heartbeat.before_loop
