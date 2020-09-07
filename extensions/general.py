@@ -63,6 +63,12 @@ class General(commands.Cog):
         self.bot.logger.info(f'{ctx.author} used {ctx.command}.')
         await ctx.send(results)
 
+    @commands.command(name='ping', aliases=['pet'])
+    async def ping_command(self, ctx):
+        """Ping the bot."""
+        await ctx.channel.send('Pong', delete_after=5.0)
+        self.bot.logger.info(f'{ctx.author} pinged the bot.')
+
 
 def setup(bot):
     """Add extension to bot."""

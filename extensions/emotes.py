@@ -212,7 +212,7 @@ class Emotes(commands.Cog):
                 self.bot.logger.info(f'{ctx.author} used {ctx.command} to search for {filter}.')
             else:
                 if C.emote_cache_updated:
-                    msg = 'ARGSociety Emotes\n\n'
+                    msg = 'The r00m Emotes\n\n'
 
                     for i in data:
                         msg = msg + f'{i[0]}\n'

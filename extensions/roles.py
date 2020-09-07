@@ -6,7 +6,7 @@
 import json
 import sqlite3
 
-import asyncio
+import aiosqlite
 from config import config as C
 import logging
 
@@ -15,36 +15,35 @@ from discord.ext import commands
 from paste_it import Paste_it
 
 
-class Utilities(commands.Cog):
-    """Utility commands."""
+class Roles(commands.Cog):
+    """Role commands."""
     def __init__(self, bot):
         self.bot = bot
+        self.db = 'roles'
+        self.task = self.bot.loop.create_task(self.check_db(self.db, 'roles'))
 
-        conn = sqlite3.connect('databases/roles.db')
-        c = conn.cursor()
-        try:
-            c.execute('CREATE TABLE roles (name text, joinable int)')
-        except sqlite3.OperationalError as e:
-            print(f'[WARN] Sqlite3 operational error: {e}. Skipping.')
-
-        conn.commit()
-        conn.close()
-
-    @commands.command(name='ping', aliases=['pet'])
-    async def ping_command(self, ctx):
-        """Ping the bot."""
-        await ctx.channel.send('Pong', delete_after=5.0)
-        self.bot.logger.info(f'{ctx.author} pinged the bot.')
+    async def check_db(self, name, table):
+        """Create db if it doesn't exist."""
+        async with aiosqlite.connect(f'databases/{name}.db') as db:
+            self.bot.logger.info(f'Creating {name} db with {table} table.')
+            try:
+                cmd = f'CREATE TABLE IF NOT EXISTS {table} (name text)'
+                await db.execute(cmd)
+                await db.commit()
+            except OperationalError as e:
+                print(f'[WARN] Sqlite3 operational error: {e}. Skipping.')
 
     @commands.has_any_role('Member')
     @commands.command(name='roleslist')
     async def roleslist_command(self, ctx):
         """List all self-joinable ranks."""
-        conn = sqlite3.connect('databases/roles.db')
-        c = conn.cursor()
-        data = c.execute('SELECT * FROM roles')
-
+        # If the roleslist has changed since we last sent it in the server
+        # then create a new paste with the updates.
         if C.role_cache_updated:
+            async with aiosqlite.connect(f'databases/{self.db}.db') as db:
+                async with db.execute('SELECT * FROM roles') as cursor:
+                    data = await cursor.fetchall()
+
             msg = '[All available self-joinable Kepler Roles]\n\n'
 
             for i in data:
@@ -55,59 +54,83 @@ class Utilities(commands.Cog):
             C.role_cache_updated = False
             C.role_link = role_list
         else:
+            # Otherwise send what is cached.
             role_list = C.role_link
 
         await ctx.send(role_list)
 
     @commands.has_any_role('Member')
-    @commands.command(name='subscribe', aliases=['join'])
+    @commands.command(name='subscribe', aliases=['join', 'leave'])
     async def toggle_roll_command(self, ctx, *, role_name: str):
         """Add or remove requested role for a user."""
         role = discord.utils.get(ctx.guild.roles, name=role_name)
 
-        if role is not None:
-            roles = ctx.author.roles
-            if role in roles:
+        # Check for role in DB.
+        async with aiosqlite.connect(f'databases/{self.db}.db') as db:
+            data = (role_name, )
+            cmd = 'SELECT * FROM roles where name=?'
+            async with db.execute(cmd, data) as cursor:
+                joinable_roles = await cursor.fetchall()
+
+            # If the role does not exist, abort.
+            if len(joinable_roles) == 0:
+                await ctx.send(f'The role {role_name} does not exist or it '
+                               f'is not self-joinable. Use `.roleslist` to '
+                               f'confirm.',
+                               delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+                return
+
+            # If there is more than one role matching, abort.
+            # In theory, this should never happen. *shrug*
+            if len(joinable_roles) > 1:
+                await ctx.send(f'More than one result for {role_name}.'
+                               f' Check with a moderator.',
+                               delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+                return
+
+            # Check if role is joinable.
+            # role_joinable = joinable_roles[0][1]
+            #
+            # if role_joinable == 1:
+            user_roles = ctx.author.roles
+            if role in user_roles:
                 await ctx.author.remove_roles(role)
                 await ctx.send(f'You have left {role_name}.')
             else:
                 await ctx.author.add_roles(role)
                 await ctx.send(f'You have joined {role_name}.')
-        else:
-            ctx.send('The role {role_name} doesn\'t seem to exist. Use '
-                     '.roleslist to confirm.')
 
     @commands.has_any_role(C.MOD)
     @commands.command(name='createrole', aliases=['newrole', 'addrole'])
-    async def createrole_command(self, ctx, role: str, color: discord.Colour,
-                                 joinable=False):
+    async def createrole_command(self, ctx, role: str, color: discord.Colour):
         """Create self-joinable role."""
-        # Check if role exists.
-        conn = sqlite3.connect('databases/roles.db')
-        c = conn.cursor()
+        # Check if role already exists.
+        async with aiosqlite.connect(f'databases/{self.db}.db') as db:
+            name = (role, )
+            cmd = 'SELECT * FROM roles WHERE name=?'
+            async with db.execute(cmd, name) as cursor:
+                response = await cursor.fetchall()
 
-        name = (role, )
-        search = c.execute('SELECT * FROM roles WHERE name=?', name)
-        data = c.fetchall()
+            # If so, abort.
+            if len(response) > 0:
+                await ctx.send(f'The role {role} already exists.',
+                               delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+                return
 
-        if len(data) > 0:
-            # Role already exists.
-            await ctx.send('That role already exists.')
-        else:
-            # Create the role.
-            print('Running createrole')
-            await ctx.guild.create_role(name=role, color=color)
+        # Create the role.
+        await ctx.guild.create_role(name=role, color=color)
 
-            print('Role created.')
+        # If the role is joinable, add it to the db.
+        # if joinable:
+        async with aiosqlite.connect(f'databases/{self.db}.db') as db:
+            data = (role, )
+            await db.execute('INSERT INTO roles VALUES (?)', data)
+            await db.commit()
 
-            if joinable is not False:
-                # Stash the role in the database.
-                data = (role, joinable)
-                c.execute('INSERT INTO roles VALUES (?,?)', data)
-                conn.commit()
-                conn.close()
-
-            await ctx.send('Created role {}.'.format(role))
+        await ctx.send(f'Created role {role}.')
 
         C.role_cache_updated = True
 
@@ -115,33 +138,44 @@ class Utilities(commands.Cog):
     @commands.command(name='deleterole', aliases=['delrole', 'removerole'])
     async def deleterole_command(self, ctx, *, role_name):
         """Delete self-joinable role."""
+        # Check if the role exists in the Discord server.
         role = discord.utils.get(ctx.guild.roles, name=role_name)
-        
-        if role is not None:
-            conn = sqlite3.connect('databases/roles.db')
-            c = conn.cursor()
 
-            name = (role_name, )
-            search = c.execute('SELECT * FROM roles WHERE name=?', name)
-            data = c.fetchall()
+        # If the role exists:
+        if role:
+            async with aiosqlite.connect(f'databases/{self.db}.db') as db:
+                cmd = 'SELECT * FROM roles WHERE name=?'
+                data = (role_name, )
+                response = await db.execute(cmd, data)
+                roles = await response.fetchall()
 
-            if len(data) > 0:
-                deleted = c.execute('DELETE FROM roles WHERE name=?', name)
+            if len(roles) > 1:
+                await ctx.send(f'There are too many roles matching the name '
+                               f'{role_name}. This needs to be handled '
+                               f'manually.', delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
+                return
+
+            if len(roles) == 1:
+                async with aiosqlite.connect(f'databases/{self.db}.db') as db:
+                    cmd = 'DELETE FROM roles WHERE name=?'
+                    await db.execute('DELETE FROM roles WHERE name=?', data)
+                    await db.commit()
+                await role.delete()
+                C.role_cache_updated = True
+                await ctx.send(f'Deleted role {role_name}.')
             else:
-                await ctx.send('That emote does not exist.')
-
-            conn.commit()
-            conn.close()
-
-            C.role_cache_updated = True
-
-            await ctx.send(f'Deleted role {role_name}.')
+                await ctx.send(f'No roles matching `{role_name}` were '
+                               f'found in the db.', delete_after=C.DEL_DELAY)
+                await ctx.message.delete(delay=C.DEL_DELAY)
         else:
-            await ctx.send(f'{role_name} does not exist.')
+            await ctx.send(f'No roles matching `{role_name}` were '
+                           f'found in Discord.', delete_after=C.DEL_DELAY)
+            await ctx.message.delete(delay=C.DEL_DELAY)
 
 
 def setup(bot):
     """Add cog to bot."""
-    bot.add_cog(Utilities(bot))
+    bot.add_cog(Roles(bot))
 
 # .r00
