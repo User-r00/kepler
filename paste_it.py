@@ -13,9 +13,8 @@ class Paste_it():
 
     async def new_paste(self, content):
         async with aiohttp.ClientSession() as session:
-            async with session.post('https://hastebin.com/documents',
-                                    data=content.encode('utf-8')) as response:
-                json_data = await response.json()
+            async with session.post('https://hastebin.com/documents', data=content.encode('utf-8')) as response:
+                json_data = await response.json(content_type='application/json')
                 link = json_data['key']
 
                 return f'Results: <http://hastebin.com/{link}>'
