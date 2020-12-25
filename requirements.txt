@@ -1,0 +1,5 @@
+aiohttp==3.6.3
+aiosqlite==0.16.0
+beautifulsoup4==4.9.3
+discord.py==1.5.1
+requests==2.22.0
