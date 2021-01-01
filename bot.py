@@ -20,18 +20,16 @@ import logging
 import discord
 from discord.ext import commands
 from config import config as C
-from credentials import tokens as TOKENS
+# from credentials import tokens as TOKENS
 
 # Extensions to load at runtime.
 startup_extensions = ['extensions.8ball',
                       'extensions.confession',
                       'extensions.emotes',
                       'extensions.errors',
-                      'extensions.fmk',
                       'extensions.gaming',
                       'extensions.general',
                       'extensions.moderator',
-                      'extensions.neverhaveiever',
                       'extensions.minecraft',
                       'extensions.movies',
                       'extensions.onboarding',
@@ -51,10 +49,13 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 
+# Setup needed directories.
+os.makedirs('logs', exist_ok=True)
+os.makedirs('databases', exist_ok=True)
+
 bot = commands.Bot(command_prefix=get_prefix, description=C.DESCRIPTION)
 
 # Setup logger.
-os.makedirs('logs', exist_ok=True)
 logger = logging.getLogger('Kepler')
 logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(filename='logs/kepler.log',
@@ -70,11 +71,6 @@ bot.logger = logger
 @bot.event
 async def on_ready():
     """Run when bot loads."""
-    # Create database folder if it doesnt' exist.
-    if not os.path.isdir('databases'):
-            print('[WARN] Databases folder does not exist. Creating it.')
-            os.makedirs('databases')
-
     bot.logger.info(f'\nLogged in as: {bot.user.name}\n')
 
     # Set bot presence
