@@ -66,7 +66,7 @@ class General(commands.Cog):
     @commands.command(name='ping', aliases=['pet'])
     async def ping_command(self, ctx):
         """Ping the bot."""
-        await ctx.channel.send('Pong', delete_after=5.0)
+        await ctx.channel.send('What?', delete_after=5.0)
         self.bot.logger.info(f'{ctx.author} pinged the bot.')
 
 

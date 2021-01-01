@@ -1,8 +1,8 @@
 FROM ubuntu
 
-COPY . ~/
+COPY . /app
 
-WORKDIR ~/
+WORKDIR /app
 
 RUN apt-get update
 

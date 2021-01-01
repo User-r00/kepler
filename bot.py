@@ -11,6 +11,7 @@ Please direct any questions to u/r00__.
 """
 
 import json
+import re
 import os
 import sqlite3
 
@@ -20,7 +21,6 @@ import logging
 import discord
 from discord.ext import commands
 from config import config as C
-# from credentials import tokens as TOKENS
 
 # Extensions to load at runtime.
 startup_extensions = ['extensions.8ball',
@@ -84,13 +84,9 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    # Monitor Terminal channel and delete anything that isn't our command.
-    # if message.channel.id == 577021097116041216:
-    #     if message.content != '.join_r00m':
-    #         await message.channel.send('Enter .join_r00m.',
-    #                                    delete_after=10.0)
-    #         await asyncio.sleep(10)
-    #         await message.delete()
+    # Check if the bot was beckoned.
+    if re.search(f'^<@!{bot.user.id}>$', message.content):
+        await message.channel.send('What?')
 
     # Check for bot command
     if message.content.startswith(C.PREFIX):
